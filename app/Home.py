@@ -20,7 +20,8 @@ load_theme = app_utils.load_theme
 
 st.set_page_config(
     page_title="Local Food Waste Management System",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 load_theme()

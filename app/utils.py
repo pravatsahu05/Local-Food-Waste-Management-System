@@ -75,10 +75,15 @@ def load_theme():
         [data-testid="stSidebar"] {
             background: linear-gradient(180deg, #0b111b 0%, #081019 100%);
             border-right: 1px solid var(--border);
+            min-width: 300px;
         }
 
         [data-testid="stSidebar"] * {
             color: var(--text);
+        }
+
+        [data-testid="stSidebarNav"] {
+            padding-top: 1rem;
         }
 
         .app-hero {
