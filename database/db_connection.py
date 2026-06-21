@@ -20,15 +20,29 @@ def load_local_env():
         os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
 
+def get_config_value(key, default=None):
+    env_value = os.getenv(key)
+
+    if env_value not in (None, ""):
+        return env_value
+
+    try:
+        import streamlit as st
+
+        return st.secrets.get(key, default)
+    except Exception:
+        return default
+
+
 def get_connection():
     load_local_env()
 
     return mysql.connector.connect(
-        host=os.getenv("DB_HOST", "127.0.0.1"),
-        port=int(os.getenv("DB_PORT", "3306")),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "food_waste_management")
+        host=get_config_value("DB_HOST", "127.0.0.1"),
+        port=int(get_config_value("DB_PORT", "3306")),
+        user=get_config_value("DB_USER", "root"),
+        password=get_config_value("DB_PASSWORD", ""),
+        database=get_config_value("DB_NAME", "food_waste_management")
     )
 
 
