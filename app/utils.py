@@ -11,11 +11,124 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from database.db_connection import get_connection
 
+SEED_CHECK_DONE = False
+
+
+def seed_database_if_empty(conn):
+    global SEED_CHECK_DONE
+
+    if SEED_CHECK_DONE:
+        return
+
+    cursor = conn.cursor()
+
+    try:
+        table_counts = {}
+
+        for table in ["providers", "receivers", "food_listings", "claims"]:
+            cursor.execute(f"SELECT COUNT(*) FROM {table}")
+            table_counts[table] = cursor.fetchone()[0]
+
+        if all(count > 0 for count in table_counts.values()):
+            SEED_CHECK_DONE = True
+            return
+
+        providers = pd.read_csv(PROJECT_ROOT / "data" / "providers_cleaned.csv")
+        receivers = pd.read_csv(PROJECT_ROOT / "data" / "receivers_cleaned.csv")
+        food = pd.read_csv(PROJECT_ROOT / "data" / "food_listings_cleaned.csv")
+        claims = pd.read_csv(PROJECT_ROOT / "data" / "claims_cleaned.csv")
+
+        food["Expiry_Date"] = pd.to_datetime(food["Expiry_Date"]).dt.date
+        claims["Timestamp"] = pd.to_datetime(claims["Timestamp"])
+
+        cursor.executemany(
+            """
+            INSERT IGNORE INTO providers
+            (Provider_ID, Name, Type, Address, City, Contact)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            [
+                (
+                    int(row.Provider_ID),
+                    row.Name,
+                    row.Type,
+                    row.Address,
+                    row.City,
+                    str(row.Contact)
+                )
+                for row in providers.itertuples(index=False)
+            ]
+        )
+
+        cursor.executemany(
+            """
+            INSERT IGNORE INTO receivers
+            (Receiver_ID, Name, Type, City, Contact)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            [
+                (
+                    int(row.Receiver_ID),
+                    row.Name,
+                    row.Type,
+                    row.City,
+                    str(row.Contact)
+                )
+                for row in receivers.itertuples(index=False)
+            ]
+        )
+
+        cursor.executemany(
+            """
+            INSERT IGNORE INTO food_listings
+            (Food_ID, Food_Name, Quantity, Expiry_Date, Provider_ID, Provider_Type, Location, Food_Type, Meal_Type)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            [
+                (
+                    int(row.Food_ID),
+                    row.Food_Name,
+                    int(row.Quantity),
+                    row.Expiry_Date,
+                    int(row.Provider_ID),
+                    row.Provider_Type,
+                    row.Location,
+                    row.Food_Type,
+                    row.Meal_Type
+                )
+                for row in food.itertuples(index=False)
+            ]
+        )
+
+        cursor.executemany(
+            """
+            INSERT IGNORE INTO claims
+            (Claim_ID, Food_ID, Receiver_ID, Status, Timestamp)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            [
+                (
+                    int(row.Claim_ID),
+                    int(row.Food_ID),
+                    int(row.Receiver_ID),
+                    row.Status,
+                    row.Timestamp.to_pydatetime()
+                )
+                for row in claims.itertuples(index=False)
+            ]
+        )
+
+        conn.commit()
+        SEED_CHECK_DONE = True
+    finally:
+        cursor.close()
+
 
 def fetch_data(query, params=None):
     conn = get_connection()
 
     try:
+        seed_database_if_empty(conn)
         df = pd.read_sql(query, conn, params=params)
     finally:
         conn.close()
@@ -513,27 +626,11 @@ def component_styles():
 
 
 def insight_cards(cards):
-    items = []
+    columns = st.columns(len(cards))
 
-    for card in cards:
-        items.append(
-            f"""
-            <div class="insight-card">
-                <div class="insight-label">{card["label"]}</div>
-                <div class="insight-value">{card["value"]}</div>
-                <div class="insight-note">{card["note"]}</div>
-            </div>
-            """
-        )
-
-    st.markdown(
-        f"""
-        <div class="insight-grid">
-            {''.join(items)}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    for column, card in zip(columns, cards):
+        column.metric(card["label"], card["value"])
+        column.caption(card["note"])
 
 
 def priority_food_cards(df):
