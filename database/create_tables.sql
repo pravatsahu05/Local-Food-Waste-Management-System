@@ -1,10 +1,6 @@
-CREATE DATABASE IF NOT EXISTS food_waste_management;
-
-USE food_waste_management;
-
 -- Providers Table
 
-CREATE TABLE providers(
+CREATE TABLE IF NOT EXISTS providers(
     Provider_ID INT PRIMARY KEY,
     Name VARCHAR(255),
     Type VARCHAR(100),
@@ -15,7 +11,7 @@ CREATE TABLE providers(
 
 -- Receivers Table
 
-CREATE TABLE receivers(
+CREATE TABLE IF NOT EXISTS receivers(
     Receiver_ID INT PRIMARY KEY,
     Name VARCHAR(255),
     Type VARCHAR(100),
@@ -25,7 +21,7 @@ CREATE TABLE receivers(
 
 -- Food Listings Table
 
-CREATE TABLE food_listings(
+CREATE TABLE IF NOT EXISTS food_listings(
     Food_ID INT PRIMARY KEY,
     Food_Name VARCHAR(255),
     Quantity INT,
@@ -42,7 +38,7 @@ CREATE TABLE food_listings(
 
 -- Claims Table
 
-CREATE TABLE claims(
+CREATE TABLE IF NOT EXISTS claims(
     Claim_ID INT PRIMARY KEY,
     Food_ID INT,
     Receiver_ID INT,
