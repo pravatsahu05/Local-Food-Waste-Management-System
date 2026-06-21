@@ -15,7 +15,6 @@ app_utils = importlib.reload(app_utils)
 
 app_footer = app_utils.app_footer
 fetch_data = app_utils.fetch_data
-insight_cards = app_utils.insight_cards
 load_theme = app_utils.load_theme
 
 st.set_page_config(
@@ -53,29 +52,14 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-insight_cards(
-    [
-        {
-            "label": "Food Available",
-            "value": f"{int(summary_row['quantity']):,}",
-            "note": "Total quantity currently listed for redistribution."
-        },
-        {
-            "label": "Providers",
-            "value": f"{int(summary_row['providers']):,}",
-            "note": "Food providers participating in the local network."
-        },
-        {
-            "label": "Receivers",
-            "value": f"{int(summary_row['receivers']):,}",
-            "note": "Receivers and organizations available for coordination."
-        },
-        {
-            "label": "Completed Claims",
-            "value": f"{int(summary_row['completed_claims']):,}",
-            "note": "Successful food redistribution actions tracked by the system."
-        }
-    ]
+metric_cols = st.columns(4)
+metric_cols[0].metric("Food Available", f"{int(summary_row['quantity']):,}")
+metric_cols[1].metric("Providers", f"{int(summary_row['providers']):,}")
+metric_cols[2].metric("Receivers", f"{int(summary_row['receivers']):,}")
+metric_cols[3].metric("Completed Claims", f"{int(summary_row['completed_claims']):,}")
+
+st.caption(
+    "Live values from the connected MySQL database. Use the sidebar pages to explore listings, providers, claims, and analytics."
 )
 
 st.markdown(
