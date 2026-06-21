@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -527,14 +526,13 @@ def insight_cards(cards):
             """
         )
 
-    components.html(
+    st.markdown(
         f"""
-        {component_styles()}
         <div class="insight-grid">
             {''.join(items)}
         </div>
         """,
-        height=160
+        unsafe_allow_html=True
     )
 
 
@@ -556,40 +554,22 @@ def priority_food_cards(df):
             """
         )
 
-    components.html(
+    st.markdown(
         f"""
-        {component_styles()}
         <div class="priority-list">
             {''.join(cards)}
         </div>
         """,
-        height=150
+        unsafe_allow_html=True
     )
 
 
 def app_footer():
-    components.html(
+    st.markdown(
         """
-        <style>
-        body {
-            margin: 0;
-            background: transparent;
-            color: #edf6f9;
-            font-family: Inter, Arial, sans-serif;
-        }
-        .app-footer {
-            padding: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.11);
-            border-radius: 14px;
-            background: rgba(16, 23, 34, 0.72);
-            color: #9fb2c7;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-        </style>
         <div class="app-footer">
             Built for food redistribution, waste reduction, and community impact.
         </div>
         """,
-        height=70
+        unsafe_allow_html=True
     )
