@@ -133,6 +133,7 @@ On Windows PowerShell:
 
 ```powershell
 $env:DB_HOST="127.0.0.1"
+$env:DB_PORT="3306"
 $env:DB_USER="root"
 $env:DB_PASSWORD="your_mysql_password"
 $env:DB_NAME="food_waste_management"
@@ -142,6 +143,7 @@ On macOS/Linux:
 
 ```bash
 export DB_HOST="127.0.0.1"
+export DB_PORT="3306"
 export DB_USER="root"
 export DB_PASSWORD="your_mysql_password"
 export DB_NAME="food_waste_management"
@@ -247,6 +249,28 @@ City-wise food availability, provider contacts, receiver contacts, and location 
 - CRUD operations: implemented
 - Visualizations and EDA: implemented
 - Location-based exploration: implemented using available city/location data
+
+## Streamlit Cloud Deployment
+
+Streamlit Cloud cannot connect to a MySQL database running on your laptop with `127.0.0.1`. For deployment, create a cloud MySQL database, import the project tables and data, then add the cloud database credentials in Streamlit secrets.
+
+Use these deployment settings:
+
+```text
+Repository: pravatsahu05/Local-Food-Waste-Management-System
+Branch: main
+Main file path: app/Home.py
+```
+
+Add these secrets in Streamlit Cloud:
+
+```toml
+DB_HOST = "your_cloud_mysql_host"
+DB_PORT = "3306"
+DB_USER = "your_cloud_mysql_user"
+DB_PASSWORD = "your_cloud_mysql_password"
+DB_NAME = "food_waste_management"
+```
 
 ## Notes
 
