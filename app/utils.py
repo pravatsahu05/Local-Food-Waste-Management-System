@@ -638,27 +638,13 @@ def priority_food_cards(df):
         st.info("No urgent expiring food found.")
         return
 
-    cards = []
+    columns = st.columns(min(3, len(df)))
 
-    for row in df.head(3).itertuples(index=False):
-        cards.append(
-            f"""
-            <div class="priority-card">
-                <strong>{row.Food_Name}</strong>
-                <span>Quantity: {int(row.Quantity)} | Expires: {row.Expiry_Date}</span>
-                <span>{row.Location} | {row.Provider_Type} | {row.Meal_Type}</span>
-            </div>
-            """
-        )
-
-    st.markdown(
-        f"""
-        <div class="priority-list">
-            {''.join(cards)}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    for column, row in zip(columns, df.head(3).itertuples(index=False)):
+        with column:
+            st.metric(row.Food_Name, int(row.Quantity), "units available")
+            st.caption(f"Expires: {row.Expiry_Date}")
+            st.caption(f"{row.Location} | {row.Provider_Type} | {row.Meal_Type}")
 
 
 def app_footer():
